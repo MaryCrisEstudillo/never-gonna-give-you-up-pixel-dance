@@ -1,0 +1,5 @@
+# One line per person:  photo_filename, Display Name
+# The photo must exist in the faces/ folder.
+# Lines starting with # are ignored. Example:
+# alex.jpg, Alex Cruz
+# mica.png, Mica
