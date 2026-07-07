@@ -53,7 +53,7 @@ const rickHairOnTop = params.get("hair") === "1";
 const demoFace = faceSrc === "demo";
 
 // The head box (relative grid cells) that a photo is fitted into.
-const HEAD = { x: 1, y: 3, w: 9, h: 10 };
+const HEAD = { x: 1, y: 2, w: 9, h: 11 };
 
 let faceImg = null, faceReady = false;
 if (faceSrc && !demoFace) {
@@ -82,20 +82,42 @@ function drawPhotoFace(ax, ay) {
   if (ar > tar) { sh2 = faceImg.height; sw2 = sh2 * tar; sx = (faceImg.width - sw2) / 2; sy = 0; }
   else { sw2 = faceImg.width; sh2 = sw2 / tar; sx = 0; sy = (faceImg.height - sh2) / 2; }
 
+  ctx.save();
+  headClip(bx, by, bw, bh);                         // clip to a head shape
   if (faceBlock <= 1) {
     ctx.imageSmoothingEnabled = true;               // crisp
     ctx.drawImage(faceImg, sx, sy, sw2, sh2, bx, by, bw, bh);
     ctx.imageSmoothingEnabled = false;
-    return;
+  } else {
+    const dw = Math.max(1, Math.round(bw / faceBlock));
+    const dh = Math.max(1, Math.round(bh / faceBlock));
+    faceBuf.width = dw; faceBuf.height = dh;
+    fctx.imageSmoothingEnabled = true;
+    fctx.clearRect(0, 0, dw, dh);
+    fctx.drawImage(faceImg, sx, sy, sw2, sh2, 0, 0, dw, dh);
+    ctx.imageSmoothingEnabled = false;
+    ctx.drawImage(faceBuf, 0, 0, dw, dh, bx, by, bw, bh);
   }
-  const dw = Math.max(1, Math.round(bw / faceBlock));
-  const dh = Math.max(1, Math.round(bh / faceBlock));
-  faceBuf.width = dw; faceBuf.height = dh;
-  fctx.imageSmoothingEnabled = true;
-  fctx.clearRect(0, 0, dw, dh);
-  fctx.drawImage(faceImg, sx, sy, sw2, sh2, 0, 0, dw, dh);
-  ctx.imageSmoothingEnabled = false;
-  ctx.drawImage(faceBuf, 0, 0, dw, dh, bx, by, bw, bh);
+  ctx.restore();
+}
+
+/* Rounded-rect clip so the photo reads as a head, not a pasted rectangle.
+   Radius is bigger at the top (rounded crown) than the jaw.                */
+function headClip(x, y, w, h) {
+  const rt = Math.round(w * 0.42);   // top corners (rounded crown)
+  const rb = Math.round(w * 0.30);   // bottom corners (jaw)
+  ctx.beginPath();
+  ctx.moveTo(x + rt, y);
+  ctx.lineTo(x + w - rt, y);
+  ctx.quadraticCurveTo(x + w, y, x + w, y + rt);
+  ctx.lineTo(x + w, y + h - rb);
+  ctx.quadraticCurveTo(x + w, y + h, x + w - rb, y + h);
+  ctx.lineTo(x + rb, y + h);
+  ctx.quadraticCurveTo(x, y + h, x, y + h - rb);
+  ctx.lineTo(x, y + rt);
+  ctx.quadraticCurveTo(x, y, x + rt, y);
+  ctx.closePath();
+  ctx.clip();
 }
 
 /* A stand-in face so the swap can be previewed with no asset.              */
@@ -195,6 +217,19 @@ function drawRickHair(ax, ay) {
   px(ax + 8, ay + 1, 1, 2, C.hairD);       // crown shadow
 }
 
+// Ginger pompadour shaped to cap a photo head — sits over the hairline and
+// tapers at the crown so it reads as styled hair, not a hat.
+function drawPompadourCap(ax, ay) {
+  px(ax + 2, ay + 2, 6, 1, C.hair);        // rounded crown
+  px(ax + 1, ay + 3, 8, 2, C.hair);        // hair band over the forehead
+  px(ax + 3, ay + 1, 4, 1, C.hairHi);      // highlighted crest
+  px(ax + 7, ay + 0, 3, 2, C.hair);        // signature quiff (up-right)
+  px(ax + 8, ay + 1, 1, 2, C.hairHi);
+  px(ax + 1, ay + 3, 1, 3, C.hair);        // left temple/sideburn
+  px(ax + 8, ay + 3, 1, 3, C.hair);        // right temple
+  px(ax + 1, ay + 3, 1, 2, C.hairD);       // left shade
+}
+
 // Rick's hand-drawn face + neck.
 function drawRickFace(ax, ay) {
   px(ax + 2, ay + 4, 7, 8, C.skin);
@@ -217,7 +252,7 @@ function drawUpper(dx, dy) {
   // ---- head: swapped-in face, demo face, or Rick's drawn face ----
   if (faceReady) {
     drawPhotoFace(ax, ay);
-    if (rickHairOnTop) drawRickHair(ax, ay);
+    if (rickHairOnTop) drawPompadourCap(ax, ay);
   } else if (demoFace) {
     drawDemoFace(ax, ay);
   } else {
