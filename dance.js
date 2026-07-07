@@ -177,70 +177,83 @@ function drawHead() {
   }
 }
 
-/* ---- torso: blazer, collar, striped shirt, buttons --------------------- */
+/* ---- torso: a shaped blazer, not a box --------------------------------- */
+// Half-width of the body at a given row: natural sloped shoulders -> waist
+// -> a slight jacket flare at the hem (slim, not boxy).
+function bodyHalf(y) {
+  if (y < 31) return 7 + (y - 27) * (18 - 7) / 4;      // shoulders slope out
+  if (y < 50) return 18 - (y - 31) * (18 - 15) / 19;   // taper to waist
+  return 15 + (y - 50) * (18 - 15) / 14;               // hem flare
+}
+
 function drawTorso() {
   // neck
   px(41, 22, 8, 4, C.skin);
   px(41, 24, 8, 1, C.skinD);
-  // jacket shoulders + body
-  px(24, 26, 42, 7, C.jacket);                  // broad shoulders
-  px(27, 32, 36, 33, C.jacket);                 // body to bottom of frame
-  px(24, 26, 3, 39, C.jacketD);                 // left shade
-  px(61, 26, 2, 39, C.jacketHi);                // right sheen
-  // white shirt collar
+  // shaped jacket silhouette (sloped shoulders, tapered waist)
+  for (let y = 27; y <= 64; y++) {
+    const h = Math.round(bodyHalf(y));
+    px(CX - h, y, 2 * h + 1, 1, C.jacket);
+    px(CX - h, y, 2, 1, C.jacketD);              // left shade
+    px(CX + h - 1, y, 2, 1, C.jacketHi);         // right sheen
+  }
+  // white shirt collar points sitting over the open jacket
   px(38, 25, 5, 3, C.collar);
   px(47, 25, 5, 3, C.collar);
-  px(40, 28, 3, 2, C.collar);
-  px(47, 28, 3, 2, C.collar);
-  // striped shirt V (cols 39..51), stripes behind the mic
-  for (let r = 0; r < 17; r++) {
-    px(39, 28 + r, 13, 1, r % 2 === 0 ? C.stripe : C.shirt);
+  px(39, 28, 3, 2, C.collar);
+  px(48, 28, 3, 2, C.collar);
+  // wide striped shirt panel (jacket worn open), lapel folds framing it
+  for (let r = 0; r < 22; r++) {
+    const y = 28 + r;
+    const w = Math.max(10, 16 - Math.floor(r * 0.3));
+    const xl = CX - Math.floor(w / 2);
+    px(xl, y, w, 1, r % 2 === 0 ? C.stripe : C.shirt);
+    px(xl - 1, y, 1, 1, C.jacketHi);             // left lapel fold
+    px(xl + w, y, 1, 1, C.jacketHi);             // right lapel fold
   }
-  // lapels — diagonal edges framing the shirt V
-  for (let i = 0; i < 6; i++) {
-    px(37 - i, 28 + i * 3, 3, 3, C.jacket);      // left lapel steps out+down
-    px(51 + i, 28 + i * 3, 3, 3, C.jacket);      // right lapel
-    px(39 - i, 28 + i * 3, 1, 3, C.jacketHi);    // lapel highlight edge
-    px(51 + i, 28 + i * 3, 1, 3, C.jacketHi);
-  }
-  // double-breasted buttons
+  // buttons on the lower jacket front
   for (let b = 0; b < 3; b++) {
-    px(40, 48 + b * 5, 2, 2, C.button);
-    px(49, 48 + b * 5, 2, 2, C.button);
+    px(38, 51 + b * 4, 2, 2, C.button);
+    px(51, 51 + b * 4, 2, 2, C.button);
   }
 }
 
-/* ---- arms / fists ------------------------------------------------------- */
-function fistArm(fy, side) {
-  const flip = (x, w) => (side === 1 ? x : COLS - x - w);
-  px(flip(24, 9), 27, 9, 6, C.jacket);          // shoulder pad
-  px(flip(24, 8), 32, 8, 14, C.jacket);         // upper sleeve
-  px(flip(24, 2), 32, 2, 14, side === 1 ? C.jacketD : C.jacketHi);
-  px(flip(26, 7), fy - 6, 7, 7, C.jacket);      // forearm
-  px(flip(27, 6), fy - 1, 6, 1, C.jacketD);     // cuff
-  px(flip(27, 6), fy, 6, 5, C.skin);            // fist
-  px(flip(27, 6), fy + 1, 6, 1, C.skinD);       // knuckles
-  px(flip(31, 2), fy + 1, 2, 3, C.skin);        // thumb
+/* ---- arms / fists: relaxed boxer's guard up at the chest ---------------- */
+// A jacket-sleeve forearm from an elbow to a fist point.
+function foreArm(x0, y0, x1, y1) {
+  const steps = Math.max(Math.abs(x1 - x0), Math.abs(y1 - y0));
+  for (let i = 0; i <= steps; i++) {
+    const x = Math.round(x0 + (x1 - x0) * i / steps);
+    const y = Math.round(y0 + (y1 - y0) * i / steps);
+    px(x - 2, y - 1, 5, 3, C.jacket);
+    px(x - 2, y - 1, 1, 3, C.jacketD);
+  }
 }
-
-function pointArm() {
-  px(57, 27, 9, 6, C.jacket);                   // shoulder
-  px(58, 17, 7, 14, C.jacket);                  // upper arm rising
-  px(58, 17, 2, 14, C.jacketD);
-  px(60, 5, 6, 13, C.jacket);                   // forearm up
-  px(61, 2, 5, 5, C.skin);                      // hand
-  px(62, 0, 2, 3, C.skin);                      // finger to the sky
+function fist(x, y) {
+  px(x - 2, y - 3, 5, 2, C.jacketD);            // cuff
+  px(x - 2, y - 1, 5, 4, C.skin);               // fist
+  px(x - 2, y - 1, 5, 1, C.skinHi);
+  px(x - 2, y + 1, 5, 1, C.skinD);              // knuckle line
 }
 
 function drawArms(pose) {
   if (pose === "point") {
-    fistArm(52, 1);
-    pointArm();
+    // his left (viewer right) thrown up to the sky, his right stays guarded
+    foreArm(60, 46, 64, 14);
+    px(62, 3, 6, 12, C.jacket);
+    fist(65, 10);
+    px(64, 4, 3, 5, C.skin);                    // finger up
+    foreArm(30, 47, 40, 53); fist(40, 53);
     return;
   }
-  const fy = pose === "up" ? 47 : pose === "down" ? 55 : 52;
-  fistArm(fy, 1);
-  fistArm(fy, -1);
+  // fists-up guard; the two fists swap height a touch for the pump
+  const b = pose === "guardB";
+  const lF = b ? [40, 51] : [40, 54];           // viewer-left fist
+  const rF = b ? [50, 53] : [50, 50];           // viewer-right fist
+  foreArm(29, 47, lF[0], lF[1]);
+  foreArm(61, 47, rF[0], rF[1]);
+  fist(lF[0], lF[1]);
+  fist(rF[0], rF[1]);
 }
 
 /* ---- the mic on its stand (fixed, out front) --------------------------- */
@@ -300,10 +313,10 @@ function drawBackground() {
 
 /* ---- main loop ---------------------------------------------------------- */
 const FRAMES = [
-  { arm: "guard", bob: 0,  lean: 0 },
-  { arm: "up",    bob: -1, lean: -1 },
-  { arm: "guard", bob: 0,  lean: 0 },
-  { arm: "down",  bob: -1, lean: 1 },
+  { arm: "guardA", bob: 0,  lean: -1 },
+  { arm: "guardB", bob: -1, lean: 0 },
+  { arm: "guardA", bob: 0,  lean: 1 },
+  { arm: "guardB", bob: -1, lean: 0 },
 ];
 const FRAME_MS = 180;
 let frameIndex = 0, lastStep = 0, noteTimer = 0, pointing = 0;
