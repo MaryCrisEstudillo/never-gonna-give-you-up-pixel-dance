@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Never Gonna Give You Up — Pixel Dance</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <main class="stage">
+    <header class="titlebar">
+      <p class="eyebrow">an offline homage · press SPACE to make him point</p>
+      <h1 class="title">Never&nbsp;Gonna<br />Give&nbsp;You&nbsp;Up</h1>
+    </header>
+
+    <div class="screen">
+      <canvas id="scene" width="360" height="260" aria-label="A pixel-art figure dancing"></canvas>
+      <div class="scanlines" aria-hidden="true"></div>
+    </div>
+
+    <footer class="creditbar">
+      <span id="status">♪ dancing ♪</span>
+      <span class="sep">·</span>
+      <span>a pixel tribute — not affiliated with the artist</span>
+    </footer>
+  </main>
+
+  <script src="dance.js"></script>
+</body>
+</html>

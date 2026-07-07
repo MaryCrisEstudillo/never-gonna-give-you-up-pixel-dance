@@ -1,0 +1,109 @@
+:root {
+  /* Warm 80s music-video palette (daytime, not synthwave) */
+  --sky-top: #ffd59e;
+  --sky-mid: #ff9d6f;
+  --sky-low: #c76b8e;
+  --ink: #2a1f3d;
+  --tan: #dcc190;
+  --neon: #ff5ea8;
+  --cyan: #4fd6e0;
+  --cream: #fff4e2;
+  --frame: #1a1526;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  height: 100%;
+}
+
+body {
+  min-height: 100dvh;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background:
+    radial-gradient(120% 90% at 50% 0%, #3a2b57 0%, #221838 55%, #140f24 100%);
+  font-family: "Press Start 2P", "Courier New", monospace;
+  color: var(--cream);
+  overflow-x: hidden;
+}
+
+.stage {
+  width: min(560px, 100%);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.titlebar { text-align: center; }
+
+.eyebrow {
+  font-size: 8px;
+  letter-spacing: 1px;
+  color: var(--cyan);
+  text-transform: uppercase;
+  margin-bottom: 14px;
+  line-height: 1.6;
+}
+
+.title {
+  font-size: clamp(18px, 6vw, 30px);
+  line-height: 1.5;
+  color: var(--cream);
+  text-shadow:
+    2px 2px 0 var(--neon),
+    4px 4px 0 var(--frame);
+}
+
+/* The "screen" the dance plays on */
+.screen {
+  position: relative;
+  border: 6px solid var(--frame);
+  border-radius: 10px;
+  box-shadow:
+    0 0 0 3px #3a2b57,
+    0 18px 40px rgba(0, 0, 0, 0.45);
+  overflow: hidden;
+  background: #140f24;
+}
+
+#scene {
+  display: block;
+  width: 100%;
+  height: auto;
+  image-rendering: pixelated;      /* keep the pixels crisp when scaled */
+  image-rendering: crisp-edges;
+}
+
+/* Subtle CRT scanlines over the canvas */
+.scanlines {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0) 0px,
+    rgba(0, 0, 0, 0) 2px,
+    rgba(0, 0, 0, 0.14) 3px
+  );
+  mix-blend-mode: multiply;
+}
+
+.creditbar {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+  font-size: 7px;
+  line-height: 1.8;
+  color: #b9a8d6;
+  text-align: center;
+}
+
+#status { color: var(--neon); }
+.sep { color: #6d5b8f; }
+
+@media (prefers-reduced-motion: reduce) {
+  /* dance.js checks this and holds a calm neutral pose */
+}
